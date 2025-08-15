@@ -6,6 +6,7 @@
 
 - 🧠 **Sistema de Conhecimento Dinâmico** - Aprende continuamente e se atualiza
 - 🌐 **16+ Modelos de IA** - GPT-4o, Claude, Gemini, Grok, DeepSeek, Qwen, Kimi e mais
+- 🖥️ **Ollama Local** - Execute modelos de IA localmente para máxima privacidade
 - 🎭 **5 Personalidades** - Amigável, Profissional, Criativa, Analítica, Empática
 - 🗣️ **Voz Feminina Natural** - Síntese de voz avançada não-robótica
 - 🎨 **Interface Moderna** - Design responsivo com tema escuro/claro
@@ -20,6 +21,7 @@
 - **Node.js** 18+ ([Download](https://nodejs.org/))
 - **Visual Studio Code** ([Download](https://code.visualstudio.com/))
 - **Git** ([Download](https://git-scm.com/))
+- **Ollama** (Opcional, para IA local) ([Download](https://ollama.ai/))
 
 ### 1. Clone o Repositório
 
@@ -58,9 +60,48 @@ XAI_API_KEY=xai-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # DeepSeek (Opcional)
 DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-# Configurações Opcionais
-OLLAMA_ENABLED=true  # Para modelos locais
+# Ollama (Para modelos locais)
+OLLAMA_ENABLED=true  # Habilita Ollama em produção
+OLLAMA_BASE_URL=http://localhost:11434  # URL do Ollama
+
+# Outras configurações
 NODE_ENV=development
+\`\`\`
+
+### 4. Configure o Ollama (Opcional - Para IA Local)
+
+Para usar modelos de IA localmente com máxima privacidade:
+
+#### Instalar Ollama:
+\`\`\`bash
+# Windows: Baixe em https://ollama.ai/download
+# macOS:
+brew install ollama
+
+# Linux:
+curl -fsSL https://ollama.ai/install.sh | sh
+\`\`\`
+
+#### Baixar Modelos:
+\`\`\`bash
+# Inicie o Ollama
+ollama serve
+
+# Em outro terminal, baixe modelos:
+ollama pull llama3        # Modelo geral (4.7GB)
+ollama pull mistral       # Modelo rápido (4.1GB)
+ollama pull codellama     # Especializado em código (3.8GB)
+ollama pull phi3          # Modelo compacto (2.3GB)
+ollama pull gemma:2b      # Muito rápido (1.4GB)
+\`\`\`
+
+#### Verificar Instalação:
+\`\`\`bash
+# Listar modelos instalados
+ollama list
+
+# Testar modelo
+ollama run llama3 "Olá, você é a NOVA?"
 \`\`\`
 
 ### 4. Execute o Projeto
@@ -74,6 +115,34 @@ pnpm dev
 \`\`\`
 
 Acesse: **http://localhost:3000**
+
+## 🔧 Solução de Problemas com Ollama
+
+### Ollama não conecta:
+\`\`\`bash
+# 1. Verifique se está rodando
+curl http://localhost:11434/api/tags
+
+# 2. Se não responder, inicie:
+ollama serve
+
+# 3. Verifique modelos disponíveis:
+ollama list
+\`\`\`
+
+### Erro "modelo não encontrado":
+\`\`\`bash
+# Baixe o modelo necessário:
+ollama pull llama3
+ollama pull mistral
+\`\`\`
+
+### Performance lenta:
+\`\`\`bash
+# Use modelos menores para melhor performance:
+ollama pull phi3          # Modelo compacto
+ollama pull gemma:2b      # Muito rápido
+\`\`\`
 
 ## 🛠️ Configuração no VS Code
 

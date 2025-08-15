@@ -98,24 +98,44 @@ export default function NovaInterface() {
   const [localInput, setLocalInput] = useState("")
   const [localMessages, setLocalMessages] = useState<any[]>([])
   const [localIsLoading, setLocalIsLoading] = useState(false)
+  const [ollamaAvailable, setOllamaAvailable] = useState(false)
 
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null)
   const recognitionRef = useRef<any>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Verificar status do Ollama na inicialização
+  useEffect(() => {
+    const checkOllama = async () => {
+      try {
+        const response = await fetch("/api/ollama/models");
+        const data = await response.json();
+        setOllamaAvailable(data.success && data.models.length > 0);
+      } catch (error) {
+        console.error("Erro ao verificar Ollama:", error);
+        setOllamaAvailable(false);
+      }
+    };
+
+    checkOllama();
+    // Verifica a cada 30 segundos
+    const interval = setInterval(checkOllama, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   function getPersonalityGreeting(personality: Personality): string {
     const greetings = {
       friendly:
-        "Olá! Eu sou NOVA, sua assistente virtual amigável com sistema de aprendizado contínuo! 😊 Você pode anexar arquivos, imagens, documentos e áudio para análise. Como posso ajudar você hoje?",
+        `Olá! Eu sou NOVA, sua assistente virtual amigável! 😊 ${ollamaAvailable ? "Estou rodando com Ollama local para máxima privacidade! 🔒" : "Estou em modo demonstração - instale o Ollama para funcionalidade completa!"} Como posso ajudar você hoje?`,
       professional:
-        "Bom dia. Sou NOVA, sua assistente virtual profissional com capacidades de aprendizado avançado e análise de arquivos. Como posso auxiliá-lo hoje?",
+        `Bom dia. Sou NOVA, sua assistente virtual profissional. ${ollamaAvailable ? "Sistema local ativo." : "Modo demonstração ativo."} Como posso auxiliá-lo hoje?`,
       creative:
-        "Oi! Sou NOVA, sua assistente criativa com sistema de conhecimento em constante evolução! ✨ Envie imagens, documentos ou áudio para inspiração. Vamos criar algo incrível juntos hoje?",
+        `Oi! Sou NOVA, sua assistente criativa! ✨ ${ollamaAvailable ? "Com processamento local, sua criatividade fica protegida!" : "Em modo demo - instale Ollama para criatividade sem limites!"} Vamos criar algo incrível?`,
       analytical:
-        "Olá. Sou NOVA, sua assistente analítica com base de conhecimento dinâmica e capacidade de análise de documentos. Estou aqui para ajudar com análises e soluções precisas.",
+        `Olá. Sou NOVA, sua assistente analítica. ${ollamaAvailable ? "Análises locais garantem privacidade total." : "Modo demonstração - configure Ollama para análises completas."} Como posso ajudar?`,
       empathetic:
-        "Olá, querido! Sou NOVA, sua assistente compreensiva que aprende continuamente para te servir melhor. Compartilhe arquivos, fotos ou áudio - estou aqui para ouvir e ajudar no que precisar. 💙",
+        `Olá, querido! Sou NOVA, sua assistente compreensiva. 💙 ${ollamaAvailable ? "Com Ollama local, suas conversas ficam totalmente privadas." : "Em modo demo - instale Ollama para privacidade completa."} Como posso te ajudar?`,
     }
     return greetings[personality]
   }
@@ -512,15 +532,11 @@ export default function NovaInterface() {
         // Capturar informações do modelo e conhecimento
         const modelUsed = response.headers.get("X-Model-Used")
         const modelType = response.headers.get("X-Model-Type")
-        const knowledgeUsed = response.headers.get("X-Knowledge-Used")
+        const randomMode = response.headers.get("X-Random-Mode")
 
         if (modelUsed) {
           setCurrentModelUsed(modelUsed)
-          console.log(`✅ Resposta gerada por: ${modelUsed} (${modelType})`)
-
-          if (knowledgeUsed) {
-            console.log(`🧠 Conhecimento utilizado: ${knowledgeUsed}`)
-          }
+          console.log(`✅ Resposta gerada por: ${modelUsed} (${modelType})${randomMode === "true" ? " [ALEATÓRIO]" : ""}`)
         }
 
         // Processar stream de resposta
@@ -572,14 +588,22 @@ export default function NovaInterface() {
       } catch (error) {
         console.error("❌ Erro ao enviar mensagem:", error)
 
-        // Adicionar mensagem de erro
-        const errorMessage = {
-          id: (Date.now() + 2).toString(),
-          role: "assistant" as const,
-          content: "Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.",
+        // Adicionar mensagem de erro mais informativa
+        let errorMessage = "Desculpe, ocorreu um erro ao processar sua mensagem.";
+        
+        if (error.message.includes("HTTP error! status: 500")) {
+          errorMessage = "🔧 Erro no servidor. Se estiver usando Ollama, verifique se está rodando corretamente.";
+        } else if (error.message.includes("Failed to fetch")) {
+          errorMessage = "🌐 Erro de conexão. Verifique sua internet ou se o Ollama está ativo.";
         }
 
-        setLocalMessages((prev) => [...prev, errorMessage])
+        const errorMessageObj = {
+          id: (Date.now() + 2).toString(),
+          role: "assistant" as const,
+          content: errorMessage + "\n\n💡 Dica: Para usar IA local, instale o Ollama e execute 'ollama serve'.",
+        }
+
+        setLocalMessages((prev) => [...prev, errorMessageObj])
       } finally {
         setLocalIsLoading(false)
         setIsTyping(false)
@@ -913,6 +937,16 @@ export default function NovaInterface() {
                   {currentModelUsed}
                 </Badge>
               )}
+              {ollamaAvailable && (
+                <Badge variant="outline" className="text-xs bg-green-600">
+                  Ollama Ativo
+                </Badge>
+              )}
+              {!ollamaAvailable && (
+                <Badge variant="outline" className="text-xs bg-orange-600">
+                  Modo Demo
+                </Badge>
+              )}
               <Badge variant="outline" className="text-xs bg-green-600">
                 Sistema Completo
               </Badge>
@@ -1198,7 +1232,7 @@ export default function NovaInterface() {
                       disabled={!isButtonEnabled}
                       className={`text-white transition-all duration-200 ${
                         isButtonEnabled
-                          ? "bg-cyan-700 hover:bg-cyan-600 cursor-pointer shadow-lg shadow-cyan-500/25"
+                          ? `${ollamaAvailable ? "bg-green-700 hover:bg-green-600" : "bg-cyan-700 hover:bg-cyan-600"} cursor-pointer shadow-lg shadow-cyan-500/25`
                           : "bg-gray-600 cursor-not-allowed opacity-50"
                       }`}
                     >
@@ -1210,7 +1244,7 @@ export default function NovaInterface() {
                       ? localInput?.trim() || attachedFiles.length > 0
                         ? "Carregando..."
                         : "Digite uma mensagem ou anexe arquivos"
-                      : "Enviar mensagem (Sistema Completo)"}
+                      : `Enviar mensagem ${ollamaAvailable ? "(Ollama Local)" : "(Modo Demo)"}`}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
