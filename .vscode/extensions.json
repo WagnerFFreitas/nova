@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-json",
+    "yzhang.markdown-all-in-one",
+    "ms-vscode.vscode-eslint",
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+    "ms-vscode.vscode-thunder-client"
+  ]
+}

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requisitos da IA NOVA - Inteligência Artificial Local com Avatar</title>
+    <meta name="description" content="Conheça os requisitos de hardware e software necessários para executar a IA NOVA em seu computador.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>IA NOVA</h1>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="about.html">Sobre</a></li>
+                    <li><a href="features.html">Recursos</a></li>
+                    <li><a href="requirements.html" class="active">Requisitos</a></li>
+                    <li><a href="documentation.html">Documentação</a></li>
+                    <li><a href="tutorial.html">Tutorial</a></li>
+                    <li><a href="download.html">Download</a></li>
+                    <li><a href="contact.html">Contato</a></li>
+                </ul>
+            </nav>
+            <div class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner da Página -->
+    <section class="page-banner">
+        <div class="container">
+            <h2>Requisitos da IA NOVA</h2>
+            <p>Verifique se seu sistema atende aos requisitos necessários para executar a IA NOVA</p>
+        </div>
+    </section>
+
+    <!-- Visão Geral dos Requisitos -->
+    <section class="requirements-overview">
+        <div class="container">
+            <h2 class="section-title">Visão Geral dos Requisitos</h2>
+            <p class="section-description">A IA NOVA é uma aplicação de IA local que requer certos recursos de hardware e software para funcionar adequadamente. Verifique abaixo se seu sistema atende aos requisitos necessários.</p>
+            
+            <div class="requirements-grid">
+                <div class="requirement-card">
+                    <div class="requirement-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3>CPU</h3>
+                    <p>Mínimo: 8 núcleos<br>Recomendado: 12+ núcleos</p>
+                </div>
+                <div class="requirement-card">
+                    <div class="requirement-icon">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                    <h3>RAM</h3>
+                    <p>Mínimo: 16 GB<br>Recomendado: 32 GB ou mais</p>
+                </div>
+                <div class="requirement-card">
+                    <div class="requirement-icon">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <h3>Armazenamento</h3>
+                    <p>Mínimo: 20 GB de espaço livre<br>Recomendado: 100 GB de espaço livre</p>
+                </div>
+                <div class="requirement-card">
+                    <div class="requirement-icon">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <h3>GPU</h3>
+                    <p>Opcional, mas recomendado<br>NVIDIA série 3000 ou superior com pelo menos 8 GB de VRAM</p>
+                </div>
+                <div class="requirement-card">
+                    <div class="requirement-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h3>Sistema Operacional</h3>
+                    <p>Windows 10/11<br>macOS 11 ou superior<br>Linux (Ubuntu 20.04 ou superior)</p>
+                </div>
+                <div class="requirement-card">
+                    <div class="requirement-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Software</h3>
+                    <p>Python 3.8 ou superior<br>Visual Studio Code<br>Git</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requisitos de Hardware -->
+    <section class="hardware-requirements">
+        <div class="container">
+            <h2 class="section-title">Requisitos de Hardware</h2>
+            
+            <div class="requirements-tabs">
+                <div class="tabs-header">
+                    <button class="tab-button active" data-tab="minimum">Requisitos Mínimos</button>
+                    <button class="tab-button" data-tab="recommended">Requisitos Recomendados</button>
+                </div>
+                
+                <div class="tabs-content">
+                    <div class="tab-content active" id="minimum">
+                        <div class="requirements-table-wrapper">
+                            <table class="requirements-table">
+                                <thead>
+                                    <tr>
+                                        <th>Componente</th>
+                                        <th>Requisito Mínimo</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>CPU</td>
+                                        <td>8 núcleos</td>
+                                        <td>Processadores Intel Core i7 ou AMD Ryzen 7 ou superior</td>
+                                    </tr>
+                                    <tr>
+                                        <td>RAM</td>
+                                        <td>16 GB</td>
+                                        <td>Suficiente para modelos menores como Llama 3 8B</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Armazenamento</td>
+                                        <td>20 GB de espaço livre</td>
+                                        <td>SSD recomendado para melhor desempenho</td>
+                                    </tr>
+                                    <tr>
+                                        <td>GPU</td>
+                                        <td>Opcional</td>
+                                        <td>NVIDIA série 1000 ou superior</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rede</td>
+                                        <td>Conexão com a Internet</td>
+                                        <td>Necessária para atualizações e comunicação com outras IAs</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="requirements-note">
+                            <p><strong>Nota:</strong> Os requisitos mínimos permitem a execução da IA NOVA com modelos menores e funcionalidades básicas. Para uma experiência completa e melhor desempenho, recomendamos os requisitos recomendados.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="recommended">
+                        <div class="requirements-table-wrapper">
+                            <table class="requirements-table">
+                                <thead>
+                                    <tr>
+                                        <th>Componente</th>
+                                        <th>Requisito Recomendado</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>CPU</td>
+                                        <td>12+ núcleos</td>
+                                        <td>Processadores Intel Core i9, AMD Ryzen 9 ou superior</td>
+                                    </tr>
+                                    <tr>
+                                        <td>RAM</td>
+                                        <td>32 GB ou mais</td>
+                                        <td>Necessário para modelos maiores e multitarefa</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Armazenamento</td>
+                                        <td>100 GB de espaço livre</td>
+                                        <td>SSD NVMe para melhor desempenho</td>
+                                    </tr>
+                                    <tr>
+                                        <td>GPU</td>
+                                        <td>NVIDIA série 3000 ou superior</td>
+                                        <td>Com pelo menos 8 GB de VRAM</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rede</td>
+                                        <td>Conexão de banda larga</td>
+                                        <td>Para atualizações rápidas e comunicação eficiente</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="requirements-note">
+                            <p><strong>Nota:</strong> Os requisitos recomendados garantem uma experiência completa e fluida com a IA NOVA, permitindo o uso de modelos maiores e todas as funcionalidades disponíveis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requisitos por Tamanho de Modelo -->
+    <section class="model-requirements alt-bg">
+        <div class="container">
+            <h2 class="section-title">Requisitos por Tamanho de Modelo</h2>
+            <p class="section-description">A IA NOVA é compatível com vários tamanhos de modelos de linguagem. Os requisitos de memória variam de acordo com o tamanho do modelo escolhido.</p>
+            
+            <div class="model-requirements-table-wrapper">
+                <table class="model-requirements-table">
+                    <thead>
+                        <tr>
+                            <th>Tamanho do Modelo</th>
+                            <th>Memória Necessária</th>
+                            <th>Recomendação de Hardware</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1B parâmetros</td>
+                            <td>~2GB de memória</td>
+                            <td>Qualquer PC moderno</td>
+                        </tr>
+                        <tr>
+                            <td>3B parâmetros</td>
+                            <td>~6GB de memória</td>
+                            <td>8GB de RAM, sem GPU</td>
+                        </tr>
+                        <tr>
+                            <td>7B parâmetros</td>
+                            <td>~14GB de memória</td>
+                            <td>16GB de RAM ou GPU com 8GB+ VRAM</td>
+                        </tr>
+                        <tr>
+                            <td>13B parâmetros</td>
+                            <td>~26GB de memória</td>
+                            <td>32GB de RAM ou GPU com 16GB+ VRAM</td>
+                        </tr>
+                        <tr>
+                            <td>70B parâmetros</td>
+                            <td>~140GB de memória</td>
+                            <td>GPU de alta capacidade ou múltiplas GPUs</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="model-note">
+                <p><strong>Nota:</strong> A quantização pode reduzir significativamente os requisitos de memória, permitindo a execução de modelos maiores em hardware mais modesto, com alguma perda de qualidade.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requisitos de Software -->
+    <section class="software-requirements">
+        <div class="container">
+            <h2 class="section-title">Requisitos de Software</h2>
+            
+            <div class="software-requirements-content">
+                <div class="software-requirements-text">
+                    <h3>Sistema Operacional</h3>
+                    <ul>
+                        <li><strong>Windows:</strong> Windows 10 ou Windows 11</li>
+                        <li><strong>macOS:</strong> macOS 11 (Big Sur) ou superior</li>
+                        <li><strong>Linux:</strong> Ubuntu 20.04 ou superior, Debian, Fedora, Arch Linux</li>
+                    </ul>
+                    
+                    <h3>Software Necessário</h3>
+                    <ul>
+                        <li><strong>Python:</strong> Versão 3.8 ou superior</li>
+                        <li><strong>Visual Studio Code:</strong> Última versão estável</li>
+                        <li><strong>Git:</strong> Para controle de versão e download de dependências</li>
+                    </ul>
+                    
+                    <h3>Bibliotecas e Frameworks</h3>
+                    <ul>
+                        <li><strong>Ollama:</strong> Para execução de modelos de IA local</li>
+                        <li><strong>MediaPipe:</strong> Para detecção e animação facial</li>
+                        <li><strong>PyQt5:</strong> Para interface gráfica</li>
+                        <li><strong>SQLite:</strong> Para armazenamento local de dados</li>
+                        <li><strong>Requests:</strong> Para comunicação com APIs</li>
+                        <li><strong>NumPy e Pandas:</strong> Para processamento de dados</li>
+                        <li><strong>OpenCV:</strong> Para processamento de imagem</li>
+                    </ul>
+                </div>
+                
+                <div class="software-requirements-image">
+                    <img src="images/requirements/software.png" alt="Requisitos de Software da IA NOVA">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verificador de Compatibilidade -->
+    <section class="compatibility-checker alt-bg">
+        <div class="container">
+            <h2 class="section-title">Verificador de Compatibilidade</h2>
+            <p class="section-description">Use nossa ferramenta para verificar se seu sistema é compatível com a IA NOVA.</p>
+            
+            <div class="compatibility-checker-form">
+                <div class="form-group">
+                    <label for="cpu">CPU</label>
+                    <select id="cpu" name="cpu">
+                        <option value="">Selecione seu CPU</option>
+                        <option value="4">4 núcleos ou menos</option>
+                        <option value="8">8 núcleos</option>
+                        <option value="12">12 núcleos ou mais</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ram">RAM</label>
+                    <select id="ram" name="ram">
+                        <option value="">Selecione sua RAM</option>
+                        <option value="8">8 GB ou menos</option>
+                        <option value="16">16 GB</option>
+                        <option value="32">32 GB ou mais</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gpu">GPU</label>
+                    <select id="gpu" name="gpu">
+                        <option value="">Selecione sua GPU</option>
+                        <option value="none">Sem GPU dedicada</option>
+                        <option value="basic">GPU básica (menos de 4 GB VRAM)</option>
+                        <option value="mid">GPU média (4-8 GB VRAM)</option>
+                        <option value="high">GPU avançada (8+ GB VRAM)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="os">Sistema Operacional</label>
+                    <select id="os" name="os">
+                        <option value="">Selecione seu SO</option>
+                        <option value="windows">Windows 10/11</option>
+                        <option value="macos">macOS 11 ou superior</option>
+                        <option value="linux">Linux (Ubuntu, Debian, etc.)</option>
+                        <option value="other">Outro</option>
+                    </select>
+                </div>
+                
+                <button id="check-compatibility" class="btn btn-primary">Verificar Compatibilidade</button>
+            </div>
+            
+            <div class="compatibility-result" id="compatibility-result">
+                <div class="result-message">
+                    <p>Preencha o formulário acima e clique em "Verificar Compatibilidade" para ver o resultado.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Perguntas Frequentes -->
+    <section class="requirements-faq">
+        <div class="container">
+            <h2 class="section-title">Perguntas Frequentes sobre Requisitos</h2>
+            
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Posso executar a IA NOVA em um laptop?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Sim, a IA NOVA pode ser executada em laptops que atendam aos requisitos mínimos. Laptops com CPUs mais recentes (Intel Core i7/i9 ou AMD Ryzen 7/9) e pelo menos 16 GB de RAM são recomendados. Para modelos menores, laptops com boas especificações devem funcionar bem.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>A GPU é realmente necessária?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>A GPU não é estritamente necessária, mas é altamente recomendada para melhor desempenho, especialmente ao usar modelos maiores. Sem uma GPU, a IA NOVA usará a CPU para processamento, o que pode ser significativamente mais lento. Modelos menores (1-3B parâmetros) podem funcionar razoavelmente bem apenas com CPU.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Quanto espaço em disco os modelos ocupam?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>O espaço em disco necessário varia de acordo com o tamanho do modelo. Modelos menores (1-3B) ocupam cerca de 2-6 GB, modelos médios (7-13B) ocupam cerca de 14-26 GB, e modelos grandes (70B) podem ocupar mais de 140 GB. A quantização pode reduzir esses tamanhos.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>A IA NOVA funciona em computadores Mac com Apple Silicon (M1/M2)?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Sim, a IA NOVA é compatível com computadores Mac com Apple Silicon (M1/M2/M3). Na verdade, esses processadores têm um bom desempenho para execução de modelos de IA localmente, graças à sua Neural Engine integrada. Recomendamos pelo menos 16 GB de RAM para uma experiência ideal.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Posso usar a IA NOVA sem conexão com a Internet?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Sim, a principal vantagem da IA NOVA é que ela funciona localmente, sem necessidade de conexão constante com a Internet. No entanto, algumas funcionalidades como atualização automática de dados e comunicação com outras IAs requerem conexão com a Internet. A funcionalidade básica de processamento de linguagem funciona completamente offline.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <h2>Seu sistema atende aos requisitos?</h2>
+            <p>Baixe a IA NOVA agora e comece a explorar todas as possibilidades da nossa IA local com interface facial animada.</p>
+            <a href="download.html" class="btn btn-primary btn-large">Download Gratuito</a>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>IA NOVA</h2>
+                    <p>Inteligência Artificial Local com Avatar</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-links-column">
+                        <h3>Navegação</h3>
+                        <ul>
+                            <li><a href="index.html">Início</a></li>
+                            <li><a href="about.html">Sobre</a></li>
+                            <li><a href="features.html">Recursos</a></li>
+                            <li><a href="requirements.html">Requisitos</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links-column">
+                        <h3>Recursos</h3>
+                        <ul>
+                            <li><a href="documentation.html">Documentação</a></li>
+                            <li><a href="tutorial.html">Tutorial</a></li>
+                            <li><a href="download.html">Download</a></li>
+                            <li><a href="contact.html">Contato</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links-column">
+                        <h3>Contato</h3>
+                        <ul>
+                            <li><a href="mailto:contato@ianova.com">contato@ianova.com</a></li>
+                            <li><a href="https://github.com/ianova">GitHub</a></li>
+                            <li><a href="contact.html#suporte">Suporte</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="copyright">
+                    &copy; 2025 IA NOVA. Todos os direitos reservados.
+                </div>
+                <div class="footer-social">
+                    <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

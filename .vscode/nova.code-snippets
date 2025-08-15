@@ -1,0 +1,94 @@
+{
+  "Nova Component": {
+    "prefix": "nova-component",
+    "body": [
+      "\"use client\"",
+      "",
+      "import { useState } from \"react\"",
+      "import { Button } from \"@/components/ui/button\"",
+      "",
+      "interface ${1:ComponentName}Props {",
+      "  ${2:prop}: ${3:string}",
+      "}",
+      "",
+      "export default function ${1:ComponentName}({ ${2:prop} }: ${1:ComponentName}Props) {",
+      "  const [${4:state}, set${4/(.*)/${1:/capitalize}/}] = useState(${5:initialValue})",
+      "",
+      "  return (",
+      "    <div className=\"${6:classes}\">",
+      "      $0",
+      "    </div>",
+      "  )",
+      "}"
+    ],
+    "description": "Cria um componente NOVA básico"
+  },
+  "Nova Hook": {
+    "prefix": "nova-hook",
+    "body": [
+      "\"use client\"",
+      "",
+      "import { useState, useEffect, useCallback } from \"react\"",
+      "",
+      "interface Use${1:HookName}Options {",
+      "  ${2:option}: ${3:string}",
+      "}",
+      "",
+      "export function use${1:HookName}(options: Use${1:HookName}Options) {",
+      "  const [${4:state}, set${4/(.*)/${1:/capitalize}/}] = useState(${5:initialValue})",
+      "",
+      "  useEffect(() => {",
+      "    $6",
+      "  }, [${7:dependencies}])",
+      "",
+      "  const ${8:method} = useCallback(() => {",
+      "    $9",
+      "  }, [${10:dependencies}])",
+      "",
+      "  return {",
+      "    ${4:state},",
+      "    ${8:method}",
+      "  }",
+      "}"
+    ],
+    "description": "Cria um hook personalizado para NOVA"
+  },
+  "Nova API Route": {
+    "prefix": "nova-api",
+    "body": [
+      "import { NextRequest, NextResponse } from \"next/server\"",
+      "",
+      "export async function ${1|GET,POST,PUT,DELETE,PATCH|}(request: NextRequest) {",
+      "  try {",
+      "    ${2:// Processar request}",
+      "    const data = await request.json()",
+      "",
+      "    ${3:// Lógica da API}",
+      "",
+      "    return NextResponse.json({ success: true, data })",
+      "  } catch (error) {",
+      "    console.error(\"${4:API Error}:\", error)",
+      "    return NextResponse.json(",
+      "      { error: \"${5:Error message}\" },",
+      "      { status: 500 }",
+      "    )",
+      "  }",
+      "}"
+    ],
+    "description": "Cria uma rota de API para NOVA"
+  },
+  "Nova Voice Config": {
+    "prefix": "nova-voice",
+    "body": [
+      "const voiceConfig: VoiceConfig = {",
+      "  provider: \"${1|browser,elevenlabs,azure,openai|}\",",
+      "  voiceId: \"${2:voice-id}\",",
+      "  model: \"${3:model-name}\",",
+      "  speed: ${4:1.0},",
+      "  pitch: ${5:1.1},",
+      "  volume: ${6:1.0}",
+      "}"
+    ],
+    "description": "Configuração de voz para NOVA"
+  }
+}
