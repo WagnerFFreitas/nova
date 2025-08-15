@@ -1,14 +1,25 @@
 import { openai } from "@ai-sdk/openai";
+import { createOllama } from "ollama-ai-provider";
 import { streamText } from "ai";
 
 // Configuração do Ollama
 const OLLAMA_BASE_URL = "http://localhost:11434";
+
+// Inicializa o provider do Ollama
+const ollama = createOllama({
+  baseURL: OLLAMA_BASE_URL,
+});
+
 const LOCAL_MODELS = {
   ollama: [
     "mistral:7b-instruct-q4_K_M",
     "llama3",
     "phi3",
     "gemma:2b",
+    "llama3:8b",
+    "llama3:70b",
+    "mistral:latest",
+    "codellama:latest",
     "neural-chat",
     "dolphin-mistral",
   ],
@@ -29,6 +40,52 @@ function isPreviewEnvironment() {
     process.env.VERCEL_URL?.includes("v0.dev") ||
     process.env.VERCEL_URL?.includes("vercel.app")
   );
+}
+
+// Função para verificar se o Ollama está disponível
+async function checkOllamaAvailability() {
+  try {
+    const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    
+    if (!response.ok) return { available: false, models: [] };
+    
+    const data = await response.json();
+    return {
+      available: true,
+      models: data.models?.map((model: any) => model.name) || [],
+    };
+  } catch (error) {
+    console.error("Erro ao verificar Ollama:", error);
+    return { available: false, models: [] };
+  }
+}
+
+// Função para gerar resposta com Ollama
+async function generateOllamaResponse(messages: any[], model: string, systemPrompt: string) {
+  try {
+    // Verifica se o modelo está disponível
+    const ollamaStatus = await checkOllamaAvailability();
+    if (!ollamaStatus.available || !ollamaStatus.models.includes(model)) {
+      throw new Error(`Modelo ${model} não disponível no Ollama`);
+    }
+
+    // Usa o provider do Ollama
+    const result = await streamText({
+      model: ollama(model),
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
+    });
+
+    return result.toDataStreamResponse();
+  } catch (error) {
+    console.error("Erro ao gerar resposta com Ollama:", error);
+    throw error;
+  }
 }
 
 function searchKnowledgeBase(query: string) {
@@ -56,140 +113,6 @@ function searchKnowledgeBase(query: string) {
     .slice(0, 3);
 }
 
-// Verificadores de disponibilidade
-async function checkLocalAIAvailability() {
-  const results = {
-    ollama: await checkOllamaAvailability(),
-    webllm: await checkWebLLMAvailability(),
-  };
-  return results;
-}
-
-async function checkOllamaAvailability() {
-  try {
-    const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!response.ok) return { available: false, models: [] };
-
-    const data = await response.json();
-    return {
-      available: true,
-      models: data.models.map((model: any) => model.name),
-    };
-  } catch {
-    return { available: false, models: [] };
-  }
-}
-
-async function checkWebLLMAvailability() {
-  try {
-    // @ts-ignore - Verifica se WebLLM está disponível no navegador
-    if (typeof window !== "undefined" && window.webllm) {
-      const availableModels = await window.webllm.getAvailableModels();
-      return {
-        available: true,
-        models: availableModels,
-      };
-    }
-    return { available: false, models: [] };
-  } catch {
-    return { available: false, models: [] };
-  }
-}
-
-// Geradores de resposta
-async function generateLocalResponse(
-  messages: any[],
-  model: string,
-  systemPrompt: string
-) {
-  // Verifica primeiro se é um modelo Ollama
-  const ollamaStatus = await checkOllamaAvailability();
-  if (ollamaStatus.available && ollamaStatus.models.includes(model)) {
-    return generateOllamaResponse(messages, model, systemPrompt);
-  }
-
-  // Tenta WebLLM se estiver disponível
-  const webllmStatus = await checkWebLLMAvailability();
-  if (webllmStatus.available && webllmStatus.models.includes(model)) {
-    return generateWebLLMResponse(messages, model, systemPrompt);
-  }
-
-  throw new Error("Modelo local não disponível");
-}
-
-async function generateOllamaResponse(
-  messages: any[],
-  model: string,
-  systemPrompt: string
-) {
-  const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messages.map((msg) => ({ role: msg.role, content: msg.content })),
-      ],
-      stream: true,
-    }),
-  });
-
-  if (!response.ok) throw new Error(`Ollama API error: ${response.statusText}`);
-  return response.body;
-}
-
-async function generateWebLLMResponse(
-  messages: any[],
-  model: string,
-  systemPrompt: string
-) {
-  try {
-    // @ts-ignore - Usa WebLLM se disponível
-    const chat = await window.webllm.ChatModule();
-    await chat.reload(model, undefined, {
-      conversation: {
-        system: systemPrompt,
-        messages: messages.map((m) => ({
-          role: m.role,
-          content: m.content,
-        })),
-      },
-    });
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        const response = await chat.generateResponse();
-        const chunks = response.split(" ");
-
-        for (const chunk of chunks) {
-          controller.enqueue(
-            new TextEncoder().encode(
-              `data: {"type":"text-delta","textDelta":"${chunk.replace(
-                /"/g,
-                '\\"'
-              )} "}\n\n`
-            )
-          );
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        }
-
-        controller.enqueue(
-          new TextEncoder().encode('data: {"type":"finish"}\n\n')
-        );
-        controller.close();
-      },
-    });
-
-    return stream;
-  } catch (error) {
-    throw new Error(`WebLLM error: ${error.message}`);
-  }
-}
-
 // Implementação principal
 export async function POST(req: Request) {
   try {
@@ -199,39 +122,25 @@ export async function POST(req: Request) {
       personality = "friendly",
       knowledgeEnabled = false,
       learningMode = false,
+      useRandom = false,
     } = await req.json();
 
-    // Verifica disponibilidade de modelos locais
-    const localAI = await checkLocalAIAvailability();
+    // Constrói o prompt do sistema
+    const systemPrompt = buildSystemPrompt(personality, knowledgeEnabled, learningMode, messages);
+
+    // Verifica se é um modelo Ollama
     const isLocalModel =
       LOCAL_MODELS.ollama.includes(model) ||
       LOCAL_MODELS.webllm.includes(model);
 
-    // Prioriza modelos locais se disponíveis
-    if (
-      isLocalModel &&
-      (localAI.ollama.available || localAI.webllm.available)
-    ) {
+    // Se for modelo local (Ollama), tenta usar primeiro
+    if (isLocalModel) {
       console.log(`🖥️ Usando modelo local: ${model}`);
-
-      const systemPrompt = buildSystemPrompt(
-        personality,
-        knowledgeEnabled,
-        learningMode,
-        messages
-      );
-
       try {
-        const localStream = await generateLocalResponse(
-          messages,
-          model,
-          systemPrompt
-        );
-        return new Response(localStream, {
-          headers: buildHeaders(model, "local", knowledgeEnabled, learningMode),
-        });
+        return await generateOllamaResponse(messages, model, systemPrompt);
       } catch (error) {
-        console.error("Erro no modelo local, caindo para simulação:", error);
+        console.error("Erro no Ollama, usando fallback:", error);
+        // Continua para o fallback
       }
     }
 
@@ -243,21 +152,25 @@ export async function POST(req: Request) {
         model,
         personality,
         knowledgeEnabled,
-        learningMode
+        learningMode,
+        useRandom
       );
     }
 
     // Fallback para modelos de nuvem com API key
+    console.log(`☁️ Usando modelo de nuvem: ${model}`);
     return cloudResponse(
       messages,
       model,
       personality,
       knowledgeEnabled,
-      learningMode
+      learningMode,
+      useRandom
     );
   } catch (error) {
     console.error("Erro na API:", error);
-    return errorResponse(error, await req.json());
+    const requestData = await req.json().catch(() => ({}));
+    return errorResponse(error, requestData);
   }
 }
 
@@ -268,7 +181,15 @@ function buildSystemPrompt(
   learningMode: boolean,
   messages: any[]
 ) {
-  let prompt = `Você é NOVA, uma assistente virtual brasileira com personalidade ${personality}.`;
+  const personalityPrompts = {
+    friendly: "Você é NOVA, uma assistente virtual brasileira amigável, calorosa e descontraída. Use emojis e linguagem casual.",
+    professional: "Você é NOVA, uma assistente virtual brasileira profissional, formal e precisa. Foque em eficiência.",
+    creative: "Você é NOVA, uma assistente virtual brasileira criativa, imaginativa e inspiradora. Gere ideias inovadoras.",
+    analytical: "Você é NOVA, uma assistente virtual brasileira analítica, lógica e detalhada. Base suas respostas em dados.",
+    empathetic: "Você é NOVA, uma assistente virtual brasileira empática, compreensiva e cuidadosa. Foque no bem-estar."
+  };
+
+  let prompt = personalityPrompts[personality as keyof typeof personalityPrompts] || personalityPrompts.friendly;
 
   if (knowledgeEnabled) {
     const lastMessage = messages[messages.length - 1]?.content || "";
@@ -289,7 +210,8 @@ function buildHeaders(
   model: string,
   type: string,
   knowledgeEnabled: boolean,
-  learningMode: boolean
+  learningMode: boolean,
+  useRandom: boolean = false
 ) {
   return {
     "Content-Type": "text/plain; charset=utf-8",
@@ -297,6 +219,7 @@ function buildHeaders(
     "X-Model-Type": type,
     "X-Knowledge-Enabled": knowledgeEnabled.toString(),
     "X-Learning-Mode": learningMode.toString(),
+    "X-Random-Mode": useRandom.toString(),
   };
 }
 
@@ -305,22 +228,55 @@ async function simulatedResponse(
   model: string,
   personality: string,
   knowledgeEnabled: boolean,
-  learningMode: boolean
+  learningMode: boolean,
+  useRandom: boolean = false
 ) {
-  const allModels = [
-    ...LOCAL_MODELS.ollama,
-    ...LOCAL_MODELS.webllm,
-    "gpt-4o",
-    "claude-3-7-sonnet",
-  ];
-  const selectedModel = allModels.includes(model) ? model : allModels[0];
+  // Se modo aleatório estiver ativo, escolhe um modelo aleatório
+  let selectedModel = model;
+  if (useRandom) {
+    const allModels = [
+      ...LOCAL_MODELS.ollama,
+      "gpt-4o",
+      "claude-3-7-sonnet",
+      "gemini-pro",
+      "grok-beta",
+      "deepseek-chat",
+    ];
+    selectedModel = allModels[Math.floor(Math.random() * allModels.length)];
+  }
 
-  const responseText =
-    `NOVA (modo simulado) usando ${selectedModel}\n\n` +
-    `Personalidade: ${personality}\n` +
-    `Conhecimento: ${knowledgeEnabled ? "Ativo" : "Inativo"}\n` +
-    `Aprendizado: ${learningMode ? "Ativo" : "Inativo"}\n\n` +
-    `Última mensagem: ${messages[messages.length - 1]?.content || "N/A"}`;
+  // Gera resposta baseada na personalidade e contexto
+  const lastMessage = messages[messages.length - 1]?.content || "";
+  let responseText = "";
+
+  // Respostas contextuais baseadas na personalidade
+  switch (personality) {
+    case "friendly":
+      responseText = `Oi! 😊 Sou NOVA em modo demonstração usando ${selectedModel}. ${lastMessage ? `Sobre "${lastMessage}", ` : ""}estou aqui para ajudar de forma amigável e descontraída! Como posso te ajudar hoje?`;
+      break;
+    case "professional":
+      responseText = `Olá. Sou NOVA em modo demonstração utilizando ${selectedModel}. ${lastMessage ? `Referente à sua consulta "${lastMessage}", ` : ""}estou preparada para fornecer assistência profissional e eficiente.`;
+      break;
+    case "creative":
+      responseText = `Olá! ✨ Sou NOVA em modo criativo usando ${selectedModel}. ${lastMessage ? `Sua ideia sobre "${lastMessage}" é interessante! ` : ""}Vamos explorar possibilidades criativas juntos!`;
+      break;
+    case "analytical":
+      responseText = `Saudações. NOVA em modo analítico com ${selectedModel}. ${lastMessage ? `Analisando "${lastMessage}": ` : ""}Estou pronta para fornecer análises detalhadas e baseadas em dados.`;
+      break;
+    case "empathetic":
+      responseText = `Olá, querido! 💙 Sou NOVA em modo empático usando ${selectedModel}. ${lastMessage ? `Entendo sua questão sobre "${lastMessage}" e ` : ""}estou aqui para ouvir e apoiar você.`;
+      break;
+    default:
+      responseText = `Olá! Sou NOVA usando ${selectedModel} em modo demonstração. Como posso ajudar?`;
+  }
+
+  if (knowledgeEnabled) {
+    responseText += "\n\n🧠 Sistema de conhecimento ativo - posso acessar informações da base de dados.";
+  }
+
+  if (learningMode) {
+    responseText += "\n\n📚 Modo aprendizado ativo - estou aprendendo continuamente com nossas interações.";
+  }
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -348,7 +304,8 @@ async function simulatedResponse(
       selectedModel,
       "simulated",
       knowledgeEnabled,
-      learningMode
+      learningMode,
+      useRandom
     ),
   });
 }
@@ -358,7 +315,8 @@ async function cloudResponse(
   model: string,
   personality: string,
   knowledgeEnabled: boolean,
-  learningMode: boolean
+  learningMode: boolean,
+  useRandom: boolean = false
 ) {
   const systemPrompt = buildSystemPrompt(
     personality,
@@ -366,38 +324,52 @@ async function cloudResponse(
     learningMode,
     messages
   );
-  const result = await streamText({
-    model: openai("gpt-4o"), // Fallback padrão
-    messages,
-    system: systemPrompt,
-  });
+  
+  // Seleciona o modelo apropriado
+  let selectedModel = model;
+  if (useRandom) {
+    const cloudModels = ["gpt-4o", "claude-3-7-sonnet", "gemini-pro"];
+    selectedModel = cloudModels[Math.floor(Math.random() * cloudModels.length)];
+  }
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const chunk of result.textStream) {
-          controller.enqueue(
-            new TextEncoder().encode(
-              `data: {"type":"text-delta","textDelta":"${chunk.replace(
-                /"/g,
-                '\\"'
-              )}"}\n\n`
-            )
-          );
-        }
-        controller.enqueue(
-          new TextEncoder().encode('data: {"type":"finish"}\n\n')
-        );
-        controller.close();
-      } catch (error) {
-        console.error("Erro no stream:", error);
-        controller.error(error);
-      }
-    },
-  });
+  let result;
+  try {
+    // Tenta usar o modelo específico
+    switch (selectedModel) {
+      case "claude-3-7-sonnet":
+        // Implementar Anthropic quando disponível
+        result = await streamText({
+          model: openai("gpt-4o"), // Fallback
+          messages,
+          system: systemPrompt,
+        });
+        break;
+      case "gemini-pro":
+        // Implementar Google AI quando disponível
+        result = await streamText({
+          model: openai("gpt-4o"), // Fallback
+          messages,
+          system: systemPrompt,
+        });
+        break;
+      default:
+        result = await streamText({
+          model: openai(selectedModel === "gpt-4o" ? "gpt-4o" : "gpt-4o"),
+          messages,
+          system: systemPrompt,
+        });
+    }
+  } catch (error) {
+    console.error(`Erro com modelo ${selectedModel}, usando GPT-4o:`, error);
+    result = await streamText({
+      model: openai("gpt-4o"),
+      messages,
+      system: systemPrompt,
+    });
+  }
 
-  return new Response(stream, {
-    headers: buildHeaders(model, "cloud", knowledgeEnabled, learningMode),
+  return result.toDataStreamResponse({
+    headers: buildHeaders(selectedModel, "cloud", knowledgeEnabled, learningMode, useRandom),
   });
 }
 
@@ -407,11 +379,16 @@ function errorResponse(error: Error, requestData: any) {
     personality = "friendly",
     knowledgeEnabled = false,
     learningMode = false,
+    useRandom = false,
   } = requestData;
 
-  const errorText =
-    `Ops! 😅 Ocorreu um erro:\n\n${error.message}\n\n` +
-    `Estou em modo de recuperação usando ${model}. Por favor, tente novamente.`;
+  let errorText = "";
+  
+  if (error.message.includes("Ollama") || error.message.includes("localhost:11434")) {
+    errorText = `🔧 Ollama não está disponível.\n\nPara usar modelos locais:\n1. Instale o Ollama (https://ollama.ai)\n2. Execute: ollama serve\n3. Baixe um modelo: ollama pull ${model}\n\nEnquanto isso, posso funcionar em modo demonstração! 😊`;
+  } else {
+    errorText = `Ops! 😅 Ocorreu um erro:\n\n${error.message}\n\nEstou em modo de recuperação. Tente novamente ou verifique se o Ollama está rodando.`;
+  }
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -439,7 +416,8 @@ function errorResponse(error: Error, requestData: any) {
       model,
       "error-fallback",
       knowledgeEnabled,
-      learningMode
+      learningMode,
+      useRandom
     ),
   });
 }

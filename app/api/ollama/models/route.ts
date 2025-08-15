@@ -13,9 +13,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Ollama não está disponível neste ambiente",
+          error: "Ollama não está disponível neste ambiente de produção",
           models: [],
-          environmentInfo: "Ambiente de produção/preview - Use apenas modelos na nuvem",
+          environmentInfo: "Ambiente de produção/preview - Para usar Ollama, configure OLLAMA_ENABLED=true",
+          suggestion: "Configure OLLAMA_ENABLED=true nas variáveis de ambiente ou use modelos na nuvem",
           environmentDetails: {
             isProduction,
             isVercelPreview,
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
     const timeoutId = setTimeout(() => {
       console.log("Timeout na conexão com Ollama")
       controller.abort()
-    }, 3000)
+    }, 5000) // Aumenta timeout para 5 segundos
 
     let response
     try {
@@ -52,14 +53,14 @@ export async function GET(request: NextRequest) {
 
       // Retornar erro específico baseado no tipo
       let errorMessage = "Ollama não está rodando"
-      let suggestion = "Execute 'ollama serve' para iniciar o Ollama"
+      let suggestion = "1. Instale o Ollama: https://ollama.ai\n2. Execute: ollama serve\n3. Baixe um modelo: ollama pull llama3"
 
       if (fetchError.name === "AbortError") {
-        errorMessage = "Timeout: Ollama não respondeu em 3 segundos"
+        errorMessage = "Timeout: Ollama não respondeu em 5 segundos"
         suggestion = "Verifique se o Ollama está rodando na porta 11434"
       } else if (fetchError.code === "ECONNREFUSED") {
         errorMessage = "Conexão recusada: Ollama não está rodando"
-        suggestion = "Execute 'ollama serve' para iniciar o Ollama"
+        suggestion = "1. Execute: ollama serve\n2. Verifique se a porta 11434 está livre"
       } else if (fetchError.message?.includes("fetch")) {
         errorMessage = "Erro de rede: Não foi possível conectar ao Ollama"
         suggestion = "Certifique-se de que o Ollama está rodando em localhost:11434"
@@ -71,6 +72,11 @@ export async function GET(request: NextRequest) {
           error: errorMessage,
           suggestion: suggestion,
           models: [],
+          installInstructions: {
+            windows: "Baixe o instalador em https://ollama.ai/download",
+            macos: "brew install ollama",
+            linux: "curl -fsSL https://ollama.ai/install.sh | sh"
+          },
           debug: {
             errorName: fetchError.name,
             errorMessage: fetchError.message,
@@ -89,7 +95,7 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           error: `Ollama retornou erro: ${response.status} - ${response.statusText}`,
-          suggestion: "Verifique se o Ollama está funcionando corretamente",
+          suggestion: "1. Reinicie o Ollama: ollama serve\n2. Verifique os logs do Ollama\n3. Teste: curl http://localhost:11434/api/tags",
           models: [],
         },
         { status: 200 },
@@ -105,7 +111,14 @@ export async function GET(request: NextRequest) {
         {
           success: true,
           error: "Ollama está rodando, mas nenhum modelo foi encontrado",
-          suggestion: "Execute 'ollama pull llama2' para baixar um modelo",
+          suggestion: "Baixe modelos:\n• ollama pull llama3\n• ollama pull mistral\n• ollama pull codellama",
+          availableModels: [
+            "llama3 (recomendado para conversação)",
+            "mistral (rápido e eficiente)", 
+            "codellama (especializado em código)",
+            "phi3 (modelo compacto)",
+            "gemma:2b (muito rápido)"
+          ],
           models: [],
         },
         { status: 200 },
@@ -118,6 +131,8 @@ export async function GET(request: NextRequest) {
       size: model.size ? formatBytes(model.size) : "Tamanho desconhecido",
       modified_at: model.modified_at,
       digest: model.digest?.substring(0, 12) + "...",
+      family: model.details?.family || "unknown",
+      parameter_size: model.details?.parameter_size || "unknown",
     }))
 
     console.log(`Encontrados ${formattedModels.length} modelos do Ollama`)
@@ -128,6 +143,12 @@ export async function GET(request: NextRequest) {
         models: formattedModels,
         count: formattedModels.length,
         message: `${formattedModels.length} modelo(s) encontrado(s)`,
+        ollamaVersion: data.version || "unknown",
+        recommendations: {
+          conversation: formattedModels.find(m => m.name.includes("llama3"))?.name || "llama3",
+          coding: formattedModels.find(m => m.name.includes("codellama"))?.name || "codellama",
+          fast: formattedModels.find(m => m.name.includes("phi3") || m.name.includes("gemma"))?.name || "phi3"
+        }
       },
       { status: 200 },
     )
@@ -138,7 +159,12 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: "Erro interno do servidor ao verificar Ollama",
-        suggestion: "Tente novamente em alguns segundos",
+        suggestion: "1. Verifique se o Ollama está instalado\n2. Execute: ollama serve\n3. Tente novamente",
+        installInstructions: {
+          windows: "https://ollama.ai/download",
+          macos: "brew install ollama", 
+          linux: "curl -fsSL https://ollama.ai/install.sh | sh"
+        },
         models: [],
         debug: {
           errorMessage: error.message,

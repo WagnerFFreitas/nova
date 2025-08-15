@@ -289,7 +289,7 @@ export default function AdvancedModelSelector({
       const timeoutId = setTimeout(() => {
         console.log("Timeout na verificação do Ollama")
         controller.abort()
-      }, 8000)
+      }, 10000) // Aumenta timeout para 10 segundos
 
       const response = await fetch("/api/ollama/models", {
         method: "GET",
@@ -311,17 +311,18 @@ export default function AdvancedModelSelector({
           setEnvironmentInfo(data.environmentInfo)
           setIsEnvironmentUnavailable(true)
           setErrorMessage(data.error || "")
+          setSuggestion(data.suggestion || "")
           console.log("Ambiente não suporta Ollama:", data.environmentInfo)
         } else if (data.success && data.models && data.models.length > 0) {
           const ollamaModels: ModelInfo[] = data.models.map((model: any) => ({
             id: model.name,
-            name: model.name.charAt(0).toUpperCase() + model.name.slice(1),
+            name: model.name.includes(":") ? model.name : `${model.name}:latest`,
             type: "local" as const,
-            description: `Modelo local Ollama - ${model.name} (${model.size})`,
+            description: `Ollama ${model.family || "LLM"} - ${model.size} (${model.parameter_size || "params"})`,
             status: "available" as const,
             provider: "Ollama",
-            speed: 60,
-            quality: 75,
+            speed: model.name.includes("phi3") || model.name.includes("gemma") ? 85 : 60,
+            quality: model.name.includes("llama3") ? 85 : 75,
             category: "general" as const,
           }))
 
@@ -334,7 +335,7 @@ export default function AdvancedModelSelector({
           setModels([...cloudModels, ...platformModels])
           setOllamaStatus("connected")
           setErrorMessage(data.error || "Nenhum modelo encontrado")
-          setSuggestion(data.suggestion || "Execute 'ollama pull <modelo>' para baixar modelos")
+          setSuggestion(data.suggestion || "Baixe modelos:\n• ollama pull llama3\n• ollama pull mistral\n• ollama pull codellama")
           console.log("Ollama conectado mas sem modelos")
         } else {
           setModels([...cloudModels, ...platformModels])
@@ -348,7 +349,7 @@ export default function AdvancedModelSelector({
         setModels([...cloudModels, ...platformModels])
         setOllamaStatus("disconnected")
         setErrorMessage("Erro na API de verificação do Ollama")
-        setSuggestion("Tente novamente em alguns segundos")
+        setSuggestion("1. Verifique se o Ollama está instalado\n2. Execute: ollama serve\n3. Tente novamente")
       }
     } catch (error: any) {
       console.error("Erro ao verificar Ollama:", error)
@@ -356,14 +357,14 @@ export default function AdvancedModelSelector({
       setOllamaStatus("disconnected")
 
       if (error.name === "AbortError") {
-        setErrorMessage("Timeout: Verificação demorou mais que 8 segundos")
-        setSuggestion("Verifique sua conexão ou tente novamente")
+        setErrorMessage("Timeout: Verificação demorou mais que 10 segundos")
+        setSuggestion("1. Ollama pode estar lento para iniciar\n2. Verifique: curl http://localhost:11434/api/tags\n3. Reinicie o Ollama")
       } else if (error.message?.includes("Failed to fetch")) {
         setErrorMessage("Erro de rede na verificação")
-        setSuggestion("Verifique sua conexão com a internet")
+        setSuggestion("1. Verifique se o Ollama está rodando\n2. Teste: curl http://localhost:11434/api/tags\n3. Verifique firewall/antivírus")
       } else {
         setErrorMessage("Erro inesperado na verificação")
-        setSuggestion("Tente novamente em alguns segundos")
+        setSuggestion("1. Reinstale o Ollama se necessário\n2. Execute: ollama serve\n3. Verifique os logs do sistema")
       }
     } finally {
       setIsCheckingOllama(false)
@@ -589,6 +590,9 @@ export default function AdvancedModelSelector({
               <strong className="text-yellow-400">Ambiente:</strong>
             </div>
             <div className="text-yellow-300">{environmentInfo}</div>
+            {suggestion && (
+              <div className="mt-2 text-yellow-200 whitespace-pre-line">{suggestion}</div>
+            )}
           </div>
         )}
 
@@ -599,6 +603,9 @@ export default function AdvancedModelSelector({
               <strong className="text-red-400">Status:</strong>
             </div>
             <div className="text-red-300">{errorMessage}</div>
+            {suggestion && (
+              <div className="mt-2 text-red-200 whitespace-pre-line">{suggestion}</div>
+            )}
           </div>
         )}
 
@@ -608,7 +615,7 @@ export default function AdvancedModelSelector({
               <Info size={12} className="text-blue-400" />
               <strong className="text-blue-400">Sugestão:</strong>
             </div>
-            <div className="text-blue-300">{suggestion}</div>
+            <div className="text-blue-300 whitespace-pre-line">{suggestion}</div>
           </div>
         )}
       </div>
