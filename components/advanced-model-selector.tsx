@@ -305,15 +305,7 @@ export default function AdvancedModelSelector({
         const data: OllamaResponse = await response.json()
         console.log("Resposta da API Ollama:", data)
 
-        if (data.environmentInfo) {
-          setModels([...cloudModels, ...platformModels])
-          setOllamaStatus("unavailable")
-          setEnvironmentInfo(data.environmentInfo)
-          setIsEnvironmentUnavailable(true)
-          setErrorMessage(data.error || "")
-          setSuggestion(data.suggestion || "")
-          console.log("Ambiente não suporta Ollama:", data.environmentInfo)
-        } else if (data.success && data.models && data.models.length > 0) {
+        if (data.success && data.connected && data.models && data.models.length > 0) {
           const ollamaModels: ModelInfo[] = data.models.map((model: any) => ({
             id: model.name,
             name: model.name.includes(":") ? model.name : `${model.name}:latest`,
@@ -331,17 +323,17 @@ export default function AdvancedModelSelector({
           setErrorMessage("")
           setSuggestion("")
           console.log(`Encontrados ${ollamaModels.length} modelos Ollama`)
-        } else if (data.success && data.models.length === 0) {
+        } else if (data.success && data.connected && data.models.length === 0) {
           setModels([...cloudModels, ...platformModels])
           setOllamaStatus("connected")
           setErrorMessage(data.error || "Nenhum modelo encontrado")
-          setSuggestion(data.suggestion || "Baixe modelos:\n• ollama pull llama3\n• ollama pull mistral\n• ollama pull codellama")
+          setSuggestion(data.suggestion || "Baixe modelos:\n• ollama pull llama3\n• ollama pull mistral")
           console.log("Ollama conectado mas sem modelos")
         } else {
           setModels([...cloudModels, ...platformModels])
           setOllamaStatus("disconnected")
           setErrorMessage(data.error || "Erro ao conectar com Ollama")
-          setSuggestion(data.suggestion || "Verifique se o Ollama está rodando")
+          setSuggestion(data.suggestion || "1. Execute: ollama serve\n2. Baixe modelo: ollama pull llama3")
           console.log("Ollama não conectado:", data.error)
         }
       } else {

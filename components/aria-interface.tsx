@@ -127,15 +127,15 @@ export default function NovaInterface() {
   function getPersonalityGreeting(personality: Personality): string {
     const greetings = {
       friendly:
-        `Olá! Eu sou NOVA, sua assistente virtual amigável! 😊 ${ollamaAvailable ? "Estou rodando com Ollama local para máxima privacidade! 🔒" : "Estou em modo demonstração - instale o Ollama para funcionalidade completa!"} Como posso ajudar você hoje?`,
+        `Olá! Eu sou NOVA, sua assistente virtual amigável! 😊 ${ollamaAvailable ? "Estou rodando com Ollama local para máxima privacidade! 🔒" : "Estou em modo demonstração. Para IA local, instale o Ollama!"} Como posso ajudar você hoje?`,
       professional:
-        `Bom dia. Sou NOVA, sua assistente virtual profissional. ${ollamaAvailable ? "Sistema local ativo." : "Modo demonstração ativo."} Como posso auxiliá-lo hoje?`,
+        `Bom dia. Sou NOVA, sua assistente virtual profissional. ${ollamaAvailable ? "Sistema Ollama local ativo." : "Modo demonstração ativo. Configure Ollama para funcionalidade completa."} Como posso auxiliá-lo hoje?`,
       creative:
-        `Oi! Sou NOVA, sua assistente criativa! ✨ ${ollamaAvailable ? "Com processamento local, sua criatividade fica protegida!" : "Em modo demo - instale Ollama para criatividade sem limites!"} Vamos criar algo incrível?`,
+        `Oi! Sou NOVA, sua assistente criativa! ✨ ${ollamaAvailable ? "Com Ollama local, sua criatividade fica protegida!" : "Em modo demo. Instale Ollama para criatividade sem limites!"} Vamos criar algo incrível?`,
       analytical:
-        `Olá. Sou NOVA, sua assistente analítica. ${ollamaAvailable ? "Análises locais garantem privacidade total." : "Modo demonstração - configure Ollama para análises completas."} Como posso ajudar?`,
+        `Olá. Sou NOVA, sua assistente analítica. ${ollamaAvailable ? "Ollama local garante análises privadas." : "Modo demonstração. Configure Ollama para análises completas e privadas."} Como posso ajudar?`,
       empathetic:
-        `Olá, querido! Sou NOVA, sua assistente compreensiva. 💙 ${ollamaAvailable ? "Com Ollama local, suas conversas ficam totalmente privadas." : "Em modo demo - instale Ollama para privacidade completa."} Como posso te ajudar?`,
+        `Olá, querido! Sou NOVA, sua assistente compreensiva. 💙 ${ollamaAvailable ? "Com Ollama local, suas conversas ficam totalmente privadas." : "Em modo demo. Instale Ollama para conversas 100% privadas."} Como posso te ajudar?`,
     }
     return greetings[personality]
   }
@@ -526,17 +526,18 @@ export default function NovaInterface() {
         })
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          const errorText = await response.text()
+          throw new Error(`HTTP ${response.status}: ${errorText}`)
         }
 
         // Capturar informações do modelo e conhecimento
         const modelUsed = response.headers.get("X-Model-Used")
         const modelType = response.headers.get("X-Model-Type")
-        const randomMode = response.headers.get("X-Random-Mode")
+        const randomModeUsed = response.headers.get("X-Random-Mode")
 
         if (modelUsed) {
           setCurrentModelUsed(modelUsed)
-          console.log(`✅ Resposta gerada por: ${modelUsed} (${modelType})${randomMode === "true" ? " [ALEATÓRIO]" : ""}`)
+          console.log(`✅ Resposta gerada por: ${modelUsed} (${modelType})${randomModeUsed === "true" ? " [ALEATÓRIO]" : ""}`)
         }
 
         // Processar stream de resposta
@@ -588,19 +589,21 @@ export default function NovaInterface() {
       } catch (error) {
         console.error("❌ Erro ao enviar mensagem:", error)
 
-        // Adicionar mensagem de erro mais informativa
-        let errorMessage = "Desculpe, ocorreu um erro ao processar sua mensagem.";
+        // Mensagem de erro mais específica
+        let errorMessage = "Desculpe, ocorreu um erro ao processar sua mensagem."
         
-        if (error.message.includes("HTTP error! status: 500")) {
-          errorMessage = "🔧 Erro no servidor. Se estiver usando Ollama, verifique se está rodando corretamente.";
+        if (error.message.includes("HTTP 500")) {
+          errorMessage = "🔧 Erro no servidor. Verifique se o Ollama está rodando: `ollama serve`"
         } else if (error.message.includes("Failed to fetch")) {
-          errorMessage = "🌐 Erro de conexão. Verifique sua internet ou se o Ollama está ativo.";
+          errorMessage = "🌐 Erro de conexão. Verifique se o Ollama está ativo em localhost:11434"
+        } else if (error.message.includes("Ollama")) {
+          errorMessage = "🖥️ Problema com Ollama. Execute `ollama serve` e baixe um modelo com `ollama pull llama3`"
         }
 
         const errorMessageObj = {
           id: (Date.now() + 2).toString(),
           role: "assistant" as const,
-          content: errorMessage + "\n\n💡 Dica: Para usar IA local, instale o Ollama e execute 'ollama serve'.",
+          content: errorMessage + "\n\n💡 **Guia rápido:**\n1. Instale: https://ollama.ai\n2. Execute: `ollama serve`\n3. Baixe modelo: `ollama pull llama3`\n4. Recarregue a página",
         }
 
         setLocalMessages((prev) => [...prev, errorMessageObj])
@@ -944,7 +947,7 @@ export default function NovaInterface() {
               )}
               {!ollamaAvailable && (
                 <Badge variant="outline" className="text-xs bg-orange-600">
-                  Modo Demo
+                  Demo - Configure Ollama
                 </Badge>
               )}
               <Badge variant="outline" className="text-xs bg-green-600">
