@@ -25,26 +25,26 @@
 
 ### 1. Clone o Repositório
 
-\`\`\`bash
+```bash
 git clone https://github.com/seu-usuario/nova-ai.git
 cd nova-ai
-\`\`\`
+```
 
 ### 2. Instale as Dependências
 
-\`\`\`bash
+```bash
 npm install
 # ou
 yarn install
 # ou
 pnpm install
-\`\`\`
+```
 
 ### 3. Configure as Variáveis de Ambiente
 
 Crie um arquivo `.env.local` na raiz do projeto:
 
-\`\`\`env
+```env
 # OpenAI (Obrigatório para GPT-4o, o1-mini)
 OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
@@ -66,60 +66,73 @@ OLLAMA_BASE_URL=http://localhost:11434  # URL do Ollama
 
 # Outras configurações
 NODE_ENV=development
-\`\`\`
+```
 
 ### 4. Configure o Ollama (Opcional - Para IA Local)
 
-Para usar modelos de IA localmente com máxima privacidade:
+**IMPORTANTE:** Para corrigir o erro de carregamento do Ollama, siga estes passos:
 
 #### Instalar Ollama:
-\`\`\`bash
+```bash
 # Windows: Baixe em https://ollama.ai/download
 # macOS:
 brew install ollama
 
 # Linux:
 curl -fsSL https://ollama.ai/install.sh | sh
-\`\`\`
+```
 
 #### Baixar Modelos:
-\`\`\`bash
+```bash
 # Inicie o Ollama
 ollama serve
 
 # Em outro terminal, baixe modelos:
-ollama pull llama3        # Modelo geral (4.7GB)
+ollama pull llama3        # Modelo geral recomendado (4.7GB)
 ollama pull mistral       # Modelo rápido (4.1GB)
-ollama pull codellama     # Especializado em código (3.8GB)
 ollama pull phi3          # Modelo compacto (2.3GB)
-ollama pull gemma:2b      # Muito rápido (1.4GB)
-\`\`\`
+```
 
 #### Verificar Instalação:
-\`\`\`bash
+```bash
 # Listar modelos instalados
 ollama list
 
 # Testar modelo
 ollama run llama3 "Olá, você é a NOVA?"
-\`\`\`
+
+# Verificar se o servidor está rodando
+curl http://localhost:11434/api/tags
+```
+
+#### Solução do Erro Específico:
+```bash
+# Se aparecer erro "mistral:7b-instruct-q4_K_M não encontrado":
+ollama pull mistral:7b-instruct-q4_K_M
+
+# Ou use o modelo padrão:
+ollama pull llama3
+
+# Reinicie o servidor Ollama:
+ollama serve
+```
 
 ### 4. Execute o Projeto
 
-\`\`\`bash
+```bash
 npm run dev
 # ou
 yarn dev
 # ou
 pnpm dev
-\`\`\`
+```
 
 Acesse: **http://localhost:3000**
 
 ## 🔧 Solução de Problemas com Ollama
 
 ### Ollama não conecta:
-\`\`\`bash
+```bash
 # 1. Verifique se está rodando
 curl http://localhost:11434/api/tags
 
@@ -128,21 +141,21 @@ ollama serve
 
 # 3. Verifique modelos disponíveis:
 ollama list
-\`\`\`
+```
 
 ### Erro "modelo não encontrado":
-\`\`\`bash
+```bash
 # Baixe o modelo necessário:
 ollama pull llama3
 ollama pull mistral
-\`\`\`
+```
 
 ### Performance lenta:
-\`\`\`bash
+```bash
 # Use modelos menores para melhor performance:
 ollama pull phi3          # Modelo compacto
 ollama pull gemma:2b      # Muito rápido
-\`\`\`
+```
 
 ## 🛠️ Configuração no VS Code
 
@@ -150,7 +163,7 @@ ollama pull gemma:2b      # Muito rápido
 
 Instale estas extensões para melhor experiência:
 
-\`\`\`json
+```json
 {
   "recommendations": [
     "bradlc.vscode-tailwindcss",
@@ -162,20 +175,20 @@ Instale estas extensões para melhor experiência:
     "yzhang.markdown-all-in-one"
   ]
 }
-\`\`\`
+```
 
 ### Configurações do Workspace
 
 Crie `.vscode/settings.json`:
 
-\`\`\`json
+```json
 {
   "typescript.preferences.importModuleSpecifier": "relative",
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "tailwindCSS.experimental.classRegex": [
-    ["cva\$$([^)]*)\$$", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\$$([^)]*)\$$", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
   "files.associations": {
     "*.css": "tailwindcss"
@@ -185,13 +198,13 @@ Crie `.vscode/settings.json`:
     "typescriptreact": "html"
   }
 }
-\`\`\`
+```
 
 ### Snippets Personalizados
 
 Crie `.vscode/nova.code-snippets`:
 
-\`\`\`json
+```json
 {
   "Nova Component": {
     "prefix": "nova-component",
@@ -218,7 +231,7 @@ Crie `.vscode/nova.code-snippets`:
     "description": "Cria um componente NOVA básico"
   }
 }
-\`\`\`
+```
 
 ## 🎯 Configuração Inicial
 
@@ -235,26 +248,26 @@ Crie `.vscode/nova.code-snippets`:
 A NOVA usa síntese de voz avançada. Para melhor experiência:
 
 #### Opção 1: Voz do Sistema (Padrão)
-\`\`\`javascript
+```javascript
 // Já configurado automaticamente
 // Busca vozes femininas em português
 // Ajusta pitch e velocidade para naturalidade
-\`\`\`
+```
 
 #### Opção 2: Voz Premium (ElevenLabs)
-\`\`\`env
+```env
 # Adicione ao .env.local
 ELEVENLABS_API_KEY=sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM  # Rachel (voz feminina natural)
-\`\`\`
+```
 
 #### Opção 3: Voz Azure (Microsoft)
-\`\`\`env
+```env
 # Adicione ao .env.local
 AZURE_SPEECH_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 AZURE_SPEECH_REGION=brazilsouth
 AZURE_VOICE_NAME=pt-BR-FranciscaNeural  # Voz feminina brasileira
-\`\`\`
+```
 
 ### 3. Configurar Modelos de IA
 
@@ -270,7 +283,7 @@ AZURE_VOICE_NAME=pt-BR-FranciscaNeural  # Voz feminina brasileira
 - **Grok-2** - Personalidade única
 
 #### Modelos Locais (Ollama)
-\`\`\`bash
+```bash
 # Instalar Ollama
 curl -fsSL https://ollama.ai/install.sh | sh
 
@@ -282,7 +295,7 @@ ollama pull gemma
 
 # Iniciar servidor
 ollama serve
-\`\`\`
+```
 
 ## 📚 Como Usar
 
@@ -303,11 +316,11 @@ ollama serve
 ### 3. Sistema de Conhecimento
 
 #### Ensinar NOVA:
-\`\`\`
+```
 "Ensine sobre inteligência artificial"
 "Aprenda sobre desenvolvimento web"
 "Pesquise informações sobre Python"
-\`\`\`
+```
 
 #### Usar Conhecimento:
 1. Ative **"Usar base de conhecimento"** nas configurações
@@ -359,14 +372,14 @@ ollama serve
 ### Configurar Voz Natural
 
 #### 1. Configurações Básicas
-\`\`\`javascript
+```javascript
 // Em components/aria-interface.tsx
 const [voiceSpeed, setVoiceSpeed] = useState([1.0])  // Velocidade
 const [voicePitch, setVoicePitch] = useState([1.1])  // Tom mais feminino
-\`\`\`
+```
 
 #### 2. Voz ElevenLabs (Premium)
-\`\`\`typescript
+```typescript
 // Criar components/voice/elevenlabs-voice.tsx
 import { ElevenLabsVoice } from '@elevenlabs/voice-sdk'
 
@@ -375,10 +388,10 @@ const voice = new ElevenLabsVoice({
   voiceId: '21m00Tcm4TlvDq8ikWAM', // Rachel
   model: 'eleven_multilingual_v2'
 })
-\`\`\`
+```
 
 #### 3. Voz Azure (Empresarial)
-\`\`\`typescript
+```typescript
 // Criar components/voice/azure-voice.tsx
 import * as sdk from 'microsoft-cognitiveservices-speech-sdk'
 
@@ -387,12 +400,12 @@ const speechConfig = sdk.SpeechConfig.fromSubscription(
   process.env.AZURE_SPEECH_REGION
 )
 speechConfig.speechSynthesisVoiceName = 'pt-BR-FranciscaNeural'
-\`\`\`
+```
 
 ### Personalizar Interface
 
 #### 1. Cores e Tema
-\`\`\`css
+```css
 /* Em app/globals.css */
 :root {
   --nova-primary: #00D4FF;    /* Ciano NOVA */
@@ -400,17 +413,17 @@ speechConfig.speechSynthesisVoiceName = 'pt-BR-FranciscaNeural'
   --nova-accent: #66E5FF;     /* Ciano claro */
   --nova-background: #0F172A; /* Fundo escuro */
 }
-\`\`\`
+```
 
 #### 2. Avatar Personalizado
-\`\`\`typescript
+```typescript
 // Em components/avatar-display.tsx
 // Substitua a URL da imagem do avatar
 const avatarUrl = "https://sua-url-personalizada.com/avatar.png"
-\`\`\`
+```
 
 #### 3. Adicionar Novos Modelos
-\`\`\`typescript
+```typescript
 // Em components/advanced-model-selector.tsx
 const customModels: ModelInfo[] = [
   {
@@ -422,24 +435,24 @@ const customModels: ModelInfo[] = [
     // ... outras configurações
   }
 ]
-\`\`\`
+```
 
 ## 🚨 Solução de Problemas
 
 ### Problemas Comuns
 
 #### 1. Voz não funciona
-\`\`\`bash
+```bash
 # Verificar permissões do navegador
 # Chrome: chrome://settings/content/microphone
 # Firefox: about:preferences#privacy
 
 # Testar síntese de voz
 console.log(window.speechSynthesis.getVoices())
-\`\`\`
+```
 
 #### 2. Modelos não carregam
-\`\`\`bash
+```bash
 # Verificar chaves de API
 echo $OPENAI_API_KEY
 echo $ANTHROPIC_API_KEY
@@ -447,10 +460,10 @@ echo $ANTHROPIC_API_KEY
 # Testar conexão
 curl -H "Authorization: Bearer $OPENAI_API_KEY" \
   https://api.openai.com/v1/models
-\`\`\`
+```
 
 #### 3. Ollama não conecta
-\`\`\`bash
+```bash
 # Verificar se está rodando
 ollama list
 
@@ -459,20 +472,20 @@ ollama serve
 
 # Verificar porta
 curl http://localhost:11434/api/tags
-\`\`\`
+```
 
 #### 4. Erro de build
-\`\`\`bash
+```bash
 # Limpar cache
 rm -rf .next node_modules
 npm install
 npm run build
-\`\`\`
+```
 
 ### Logs de Debug
 
 #### 1. Ativar logs detalhados
-\`\`\`typescript
+```typescript
 // Em app/api/chat/route.ts
 console.log("🔍 Debug:", {
   model,
@@ -480,21 +493,21 @@ console.log("🔍 Debug:", {
   knowledgeEnabled,
   messages: messages.length
 })
-\`\`\`
+```
 
 #### 2. Monitorar performance
-\`\`\`typescript
+```typescript
 // Em components/aria-interface.tsx
 console.time("Response Time")
 // ... código da resposta
 console.timeEnd("Response Time")
-\`\`\`
+```
 
 ## 📱 Deploy em Produção
 
 ### Vercel (Recomendado)
 
-\`\`\`bash
+```bash
 # Instalar Vercel CLI
 npm i -g vercel
 
@@ -504,11 +517,11 @@ vercel
 # Configurar variáveis de ambiente
 vercel env add OPENAI_API_KEY
 vercel env add ANTHROPIC_API_KEY
-\`\`\`
+```
 
 ### Docker
 
-\`\`\`dockerfile
+```dockerfile
 # Dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -518,17 +531,17 @@ COPY . .
 RUN npm run build
 EXPOSE 3000
 CMD ["npm", "start"]
-\`\`\`
+```
 
-\`\`\`bash
+```bash
 # Build e run
 docker build -t nova-ai .
 docker run -p 3000:3000 nova-ai
-\`\`\`
+```
 
 ### Netlify
 
-\`\`\`bash
+```bash
 # Build command
 npm run build
 
@@ -538,36 +551,36 @@ out
 # Environment variables
 OPENAI_API_KEY=sk-proj-xxx
 ANTHROPIC_API_KEY=sk-ant-xxx
-\`\`\`
+```
 
 ## 🔐 Segurança e Privacidade
 
 ### Configurações de Segurança
 
 #### 1. Variáveis de Ambiente
-\`\`\`env
+```env
 # Nunca commite chaves de API
 # Use .env.local para desenvolvimento
 # Configure no painel do provedor para produção
-\`\`\`
+```
 
 #### 2. Validação de Input
-\`\`\`typescript
+```typescript
 // Sanitizar entradas do usuário
 const sanitizeInput = (input: string) => {
   return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
 }
-\`\`\`
+```
 
 #### 3. Rate Limiting
-\`\`\`typescript
+```typescript
 // Implementar limite de requisições
 const rateLimiter = {
   requests: new Map(),
   limit: 60, // 60 requests per minute
   window: 60000 // 1 minute
 }
-\`\`\`
+```
 
 ### Privacidade dos Dados
 
@@ -588,7 +601,7 @@ const rateLimiter = {
 
 ### Estrutura do Projeto
 
-\`\`\`
+```
 nova-ai/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API Routes
@@ -604,7 +617,7 @@ nova-ai/
 ├── .env.local          # Variáveis de ambiente
 ├── README.md           # Este arquivo
 └── package.json        # Dependências
-\`\`\`
+```
 
 ## 📄 Licença
 
